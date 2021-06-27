@@ -9,36 +9,55 @@ const BoardingType = require('../models/BoardingType');
 
 /**
  * Load table data using Datatable library
- * Get boardingTypes who have same and greater role level number
+ * Get boarding_types who have same and greater role level number
  */
-exports.table = (req,res, next) => {
+ exports.table = (req,res, next) => {
     const table = new Datatable(req.body.datatable);
+    const custom_query = [
+        {
+            $lookup: {
+                from: 'role',
+                foreignField: '_id',
+                localField: 'roleID',
+                as: 'role'
+            }
+        },
+        { $unwind: '$role' },
+        { 
+            $match: {
+                'role.level' : { $gt: -1 }
+            }
+        },
+        { $project: { password: 0 }}
+    ];
+
     if(req.body.filter) {
-      const filter = new TableFilter(req.body.filter);
-      if(filter.get_match()) {
-        const custom_query = [{$match: filter.get_match()}];
-        table.set_custom_query(custom_query);
-      }
+        let filter = new TableFilter(req.body.filter);
+        if(filter.get_match()) {
+            custom_query.push({$match: filter.get_match()});
+        }
     }
-    const pipeline = table.generate_pipeline();
-    
+
+    table.set_custom_query(custom_query);
+    let pipeline = table.generate_pipeline();
+
     BoardingType.aggregate(pipeline)
-      .then(boarding_type => {
-        res.status(200).json({
-            success: true,
-            status: 200,
-            data: table.result(boarding_type),
-            message: ""
+        .then(boarding_type => {
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: table.result(boarding_type),
+                message: ""
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
         });
-      })
-      .catch(err => {
-        res.status(400).json({
-            success: false,
-            status: 400,
-            data: err,
-            message: err.message
-        });
-      });
 };
 
 /**
