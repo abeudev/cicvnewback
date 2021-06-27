@@ -19,5 +19,5 @@ router.use('/colis', require('./colis'));
 router.use('/warehouse', require('./warehouse'));
 router.use('/conversation', require('./conversation'));
 router.use('/colistracker', require('./colis_tracker'));
-
+router.use('/users2', require('./user'));
 module.exports = router;

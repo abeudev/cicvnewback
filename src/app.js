@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser')
+var cors = require('cors');
 const	errorhandler = require('errorhandler');
 const	config = require('./config');
 const	mongoose = require('mongoose');
@@ -16,6 +17,9 @@ const app = express();
 if (!isProduction) {
   app.use(errorhandler());
 }
+
+/********* CORS cross origin  */
+app.use(cors());
 
 /**
  * Init Body Parser to control request body
