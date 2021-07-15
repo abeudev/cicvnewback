@@ -16,7 +16,7 @@ BoardingTypeSchema.plugin(uniqueValidator, { message: 'is already taken.' });
 BoardingTypeSchema.methods.assignData = function (boardingTypeData) {
     this.name = boardingTypeData.name;
     this.description = boardingTypeData.description;
-    this.isActive = true;
+    this.isActive =  boardingTypeData.isActive? boardingTypeData.isActive: true;
 };
 
 BoardingTypeSchema.methods.toJSON = function () {

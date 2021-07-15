@@ -21,7 +21,7 @@ TypeOperationSchema.plugin(uniqueValidator, { message: 'is already taken.' });
 TypeOperationSchema.methods.assignData = function (typeOperationData) {
     this.name = typeOperationData.name;
     this.description = typeOperationData.description;
-    this.isActive = true;
+    this.isActive = typeOperationData.isActive? typeOperationData.isActive : true;
 };
 
 TypeOperationSchema.methods.toJSON = function () {

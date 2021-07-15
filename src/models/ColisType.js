@@ -16,7 +16,7 @@ ColisTypeSchema.plugin(uniqueValidator, { message: 'is already taken.' });
 ColisTypeSchema.methods.assignData = function (colisTypeData) {
     this.name = colisTypeData.name;
     this.description = colisTypeData.description;
-    this.isActive = true;
+    this.isActive = colisTypeData.isActive?   colisTypeData.isActive : true;
 };
 
 ColisTypeSchema.methods.toJSON = function () {

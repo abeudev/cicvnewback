@@ -110,6 +110,7 @@ exports.login = (req, res, next) => {
  * Get users who have same and greater role level number
  */
 exports.table = (req,res, next) => {
+
     const table = new datatable(req.body.datatable);
     const custom_query = [
         {
@@ -631,6 +632,38 @@ exports.send_forgot_password_mail = (req, res) => {
             }
         })
         .catch(err =>{
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+        })
+};
+
+/**
+ * Load Users as options for selection purphose
+ */
+ exports.options = (req, res) => {
+    User.find({
+            isActive: true
+           
+        })
+        .then(users => {
+            users = users.map(user => {
+               return {
+                   text : user.username,
+                   value : user._id
+               }
+            });
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: users,
+                message: ""
+            });
+        })
+        .catch(err => {
             res.status(400).json({
                 success: false,
                 status: 400,

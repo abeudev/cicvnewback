@@ -47,8 +47,26 @@ const UserSchema = new mongoose.Schema({
 		},
 		lastName: String,
 		password: String,
-		isPending: Boolean,
-		isActive: Boolean,
+		isPending:  {
+			type: Boolean,
+			default: true
+		},
+		isActive:  {
+			type: Boolean,
+			default: false
+		},
+		isAgent:  {
+			type: Boolean,
+			default: false
+		},
+		isClient: {
+			type: Boolean,
+			default: true
+		},
+		isDeliveryMan:{
+			type: Boolean,
+			default: false
+		},
 		roleID: {
 				type: mongoose.Schema.ObjectId,
 				ref: "Role"
@@ -75,8 +93,11 @@ UserSchema.methods.assignData = function (userData) {
 				this.address = userData.address;
 				this.avatar = userData.avatar;
 				this.useImage = false;
-				this.isPending = true;
-				this.isActive = false;
+				this.isPending = userData.isPending;
+				this.isActive = userData.isActive;
+				this.isClient=userData.isClient;
+				this.isAgent=userData.isAgent;
+				this.isDeliveryMan=userData.isDeliveryMan;
 				this.password = bcrypt.hashSync(userData.password, 10);
 				this.roleID = await this.setRole(userData.roleID);
 				resolve();
@@ -117,6 +138,9 @@ UserSchema.methods.toJSON = function(){
 				lastName: this.lastName,
 				isPending: this.isPending,
 				isActive: this.isActive,
+				isClient:this.isClient,
+				isAgent:this.isAgent,
+				isDeliveryMan:this.isDeliveryMan,
 				dateOfBirth: this.dateOfBirth ? parseInt(moment(this.dateOfBirth).format('x')) : this.dateOfBirth,
 				avatar: this.avatar,
 				useImage: this.useImage,

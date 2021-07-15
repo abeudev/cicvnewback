@@ -3,8 +3,14 @@ const mongoose = require('mongoose');
 const WarehouseSchema = new mongoose.Schema({
     name : String,
     description: String,
-    location:String,
-    image: String,
+    location: {
+        streetName: String,
+        city: Number,
+        state: Number,
+        country: Number,
+        postalCode: String
+    },
+    isActive : Boolean
     //attribuer un agent à un entrepôt [agent 1, agent 2, ...]
 
 }, {timestamps: true, versionKey : false});
@@ -18,7 +24,7 @@ WarehouseSchema.methods.assignData = function (warehouseData) {
     this.name = warehouseData.name;
     this.description = warehouseData.description;
     this.location = warehouseData.location;
-    this.image = warehouseData.image;
+    this.isActive = warehouseData.isActive;
 };
 
 WarehouseSchema.methods.toJSON = function () {
@@ -27,7 +33,7 @@ WarehouseSchema.methods.toJSON = function () {
         name : this.name,
         description : this.description,
         location : this.location,
-        image: this.image
+        isActive : this.isActive,
     };
 };
 

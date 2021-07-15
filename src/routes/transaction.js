@@ -4,18 +4,18 @@ const Transaction = require('../controllers/TransactionController');
 
 
 
-router.post('/', Transaction.create);
+router.post('/',auth.required, Transaction.create);
 
-router.put('/',  Transaction.update);
-
-
-
-router.post('/table',  Transaction.table);
+router.put('/', auth.required, Transaction.update);
 
 
 
-router.get('/:transactionID',  Transaction.detail_by_id);
-router.delete('/:transactionID',  Transaction.delete_by_id);
+router.post('/table',auth.required,  Transaction.table);
+
+
+router.get('/options', auth.required, Transaction.options);
+router.get('/:transactionID', auth.required, Transaction.detail_by_id);
+router.delete('/:transactionID', auth.required, Transaction.delete_by_id);
 
 
 module.exports = router;

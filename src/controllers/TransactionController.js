@@ -143,3 +143,36 @@ exports.detail_by_id = (req, res, next) => {
             });
         });
 };
+
+
+/**
+ * Load Transaction as options for selection purphose
+ */
+ exports.options = (req, res) => {
+    Transaction.find({
+            isActive: true
+           
+        }) // mettre un filtre pour ne pas afficher ni les agents, ni les admins
+        .then(transactions => {
+            transactions = transactions.map(transaction => {
+               return {
+                   text : transaction.arrival_date,
+                   value : transaction._id
+               }
+            });
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: transactions,
+                message: ""
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+        })
+};

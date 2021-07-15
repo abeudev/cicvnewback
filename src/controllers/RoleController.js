@@ -170,3 +170,36 @@ exports.check = (req, res) => {
             });
         })
 };
+
+
+/**
+ * Load Users as options for selection purphose
+ */
+ exports.options2 = (req, res) => {
+    User.find({
+            isActive: true
+           
+        }) // mettre un filtre pour ne pas afficher ni les agents, ni les admins
+        .then(users => {
+            users = users.map(user => {
+               return {
+                   text : user.username,
+                   value : user._id
+               }
+            });
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: users,
+                message: ""
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+        })
+};

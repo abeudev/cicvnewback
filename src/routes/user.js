@@ -31,4 +31,8 @@ router.post('/password/mail', UserController.send_forgot_password_mail);
 
 router.put('/password/reset', auth.temporary, UserController.reset_password);
 
+
+/********** supplement */
+router.get('/options', auth.required, UserController.options);
+
 module.exports = router;

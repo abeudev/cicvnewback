@@ -14,7 +14,7 @@ router.use('/dashboard', require('./dashboard'));
 router.use('/operationtype', require('./type_operation'));
 router.use('/transaction', require('./transaction'));
 router.use('/boardingtype', require('./boarding_type'));
-router.use('/colistype', require('./transaction'));
+router.use('/colistype', require('./colis_type'));
 router.use('/colis', require('./colis'));
 router.use('/warehouse', require('./warehouse'));
 router.use('/conversation', require('./conversation'));

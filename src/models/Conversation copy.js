@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const ConversationSchema = new mongoose.Schema({
-    members: {
-        type: Array,
-      },
+    message : String,
+    client: String,// transform to foreign key
+    cicv:String // transform to foreign key
+    // ajouter le type (suggestion ou reclamation)
+
 }, {timestamps: true, versionKey : false});
 
 
@@ -12,13 +14,17 @@ const ConversationSchema = new mongoose.Schema({
  * @param {Object} ConversationData 
  */
 ConversationSchema.methods.assignData = function (conversationData) {
-    this.members = conversationData.members;
+    this.message = conversationData.message;
+    this.client = conversationData.client;
+    this.cicv = conversationData.cicv;
 };
 
 ConversationSchema.methods.toJSON = function () {
     return {
         _id: this._id,
-        members : this.members,
+        message : this.message,
+        client : this.client,
+        cicv : this.cicv
     };
 };
 
