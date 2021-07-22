@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const ConversationSchema = new mongoose.Schema({
-    members: {
-        type: Array,
-      },
+    members: [{
+     
+        type: mongoose.Schema.ObjectId,
+				ref: "User"
+      }],
 }, {timestamps: true, versionKey : false});
 
 

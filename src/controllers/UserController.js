@@ -104,6 +104,87 @@ exports.login = (req, res, next) => {
             });
         });
 };
+/**
+ * Login
+ * Check active user with valid credential
+ * Then generate token with expiration data from site config
+ */
+ exports.loginWithPhone = (req, res, next) => {
+    if(!req.body.phone) {
+        res.status(422).json({
+            success: false,
+            status: 422,
+            data: null,
+            message: "Phone number can not be blank"
+        });
+    }
+    if(!req.body.password) {
+        res.status(422).json({
+            success: false,
+            status: 422,
+            data: null,
+            message: "Password can not be blank"
+        });
+    }
+    const log = new UserLog();
+    User.findOne({
+        phone: req.body.phone,
+        isActive: true
+    })
+        .populate('roleID')
+        .then(user => {
+            bcrypt.compare(req.body.password, user.password, (err, matched) => {
+                if(err) {
+                    log.logFailed(req, err, user._id);
+                    log.save();
+                    res.status(400).json({
+                        success: false,
+                        status: 400,
+                        data: err,
+                        message: err.message
+                    });
+                }
+
+                    let expiresIn = `${config.default.siteSetting.session.value} ${config.default.siteSetting.session.unit}`;
+                    SiteSetting.findOne({})
+                        .then(setting => {
+                            if(setting) {
+                                expiresIn = `${setting.session.value} ${setting.session.unit}`;
+                            }
+                            let token = user.generateJWT(user, expiresIn);
+                            log.logSuccess(req, 'success', user._id);
+                            log.save();
+                            res.status(200).json({
+                                success: true,
+                                status: 200,
+                                data: { token },
+                                message: "Success!"
+                            });
+                        })
+                        .catch(err => {
+                            log.logFailed(req, err, user._id);
+                            log.save();
+                            res.status(400).json({
+                                success: false,
+                                status: 400,
+                                data: err,
+                                message: err.message
+                            });
+                        });
+
+            });
+        })
+        .catch(err => {
+            log.logFailed(req, 'user does not found');
+            log.save();
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: "User does not found"
+            });
+        });
+};
 
 /**
  * Load table data using Datatable library

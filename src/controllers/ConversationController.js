@@ -6,6 +6,71 @@ const config = require('../config');
 
 const Conversation = require('../models/Conversation');
 
+//new conv
+exports.create = async (req, res, next) => {
+    const conversation = new Conversation({
+        members: [req.body.senderId, req.body.receiverId],
+      });
+    
+          try {
+            const savedConversation = await conversation.save();
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: savedConversation,
+                message: "Success"
+            });
+          } catch (err) {
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+          }
+};
+//get conv of a user
+exports.getConvOfAUser = async (req, res, next) => {
+          try {
+            const conversation = await Conversation.find({
+              members: { $in: [req.params.userId] },
+            });
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: conversation,
+                message: "Success"
+            });
+          } catch (err) {
+            res.status(500).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+          }
+};
+// get conv includes two userId
+exports.getConvOfTwoUser = async (req, res, next) => {
+    try {
+      const conversation = await Conversation.find({
+        members: { $all: [req.params.firstUserId, req.params.secondUserId] },
+      });
+      res.status(200).json({
+          success: true,
+          status: 200,
+          data: conversation,
+          message: "Success"
+      });
+    } catch (err) {
+      res.status(500).json({
+          success: false,
+          status: 400,
+          data: err,
+          message: err.message
+      });
+    }
+};
 
 /**
  * Load table data using Datatable library
@@ -41,82 +106,7 @@ exports.table = (req,res, next) => {
       });
 };
 
-/**
- * Create a Conversation 
- */
-exports.create = async (req, res, next) => {
-    const conversation = new Conversation();
-    await conversation.assignData(req.body);
-    conversation.isActive = true;
-    conversation.save()
-        .then(() => {
-            res.status(200).json({
-                success: true,
-                status: 200,
-                data: conversation.toJSON(),
-                message: "Success"
-            });
-        })
-        .catch(err => {
-            res.status(400).json({
-                success: false,
-                status: 400,
-                data: err,
-                message: err.message
-            });
-        })
-};
 
-
-/**
- * Update Conversation
- * 
- */
-exports.update = (req, res, next) => {
-    Conversation.findByIdAndUpdate(
-        mongoose.Types.ObjectId(req.body._id),
-        req.body,
-        { omitUndefined: true, runValidators: true, context: 'query' })
-        .then((conversation) => {
-            res.status(200).json({
-                success: true,
-                status: 200,
-                data: req.body,
-                message: "Success"
-            });
-        })
-        .catch(err => {
-            res.status(400).json({
-                success: false,
-                status: 400,
-                data: err,
-                message: err.message
-            });
-        });
-};
-
-/**
- * Find conversation by id 
- */
-exports.detail_by_id = (req, res, next) => {
-    Conversation.findById(mongoose.Types.ObjectId(req.params.conversationID))
-        .then(conversation => {
-            res.status(200).json({
-                success: true,
-                status: 200,
-                data: conversation,
-                message: "Success"
-            });
-        })
-        .catch(err =>{
-            res.status(400).json({
-                success: false,
-                status: 400,
-                data: err,
-                message: 'Conversation not found'
-            });
-        })
-};
 
 /**
  * Delete conversation and record from db

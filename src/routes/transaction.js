@@ -8,10 +8,7 @@ router.post('/',auth.required, Transaction.create);
 
 router.put('/', auth.required, Transaction.update);
 
-
-
 router.post('/table',auth.required,  Transaction.table);
-
 
 router.get('/options', auth.required, Transaction.options);
 router.get('/:transactionID', auth.required, Transaction.detail_by_id);

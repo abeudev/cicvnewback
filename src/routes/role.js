@@ -12,7 +12,7 @@ router.post('/table', auth.required, RoleController.table);
 router.get('/options', auth.required, RoleController.options);
 
 router.get('/options2', auth.required, RoleController.options2);
-
+router.get('/tchatusers', auth.required, RoleController.tchatUsers);
 router.get('/:roleID', auth.required, RoleController.detail_by_id);
 
 router.get('/:roleID/users', auth.required, RoleController.check);

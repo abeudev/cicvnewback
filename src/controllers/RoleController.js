@@ -203,3 +203,34 @@ exports.check = (req, res) => {
             });
         })
 };
+
+
+exports.tchatUsers = (req, res) => {
+    User.find({
+           // isActive: true
+        }) // mettre un filtre pour ne pas afficher ni les agents, ni les admins
+        .then(users => {
+            users = users.map(user => {
+               return {
+                   name : user.username,
+                   active : user.isActive,
+                   avatar: "",
+                   chatData: []
+               }
+            });
+            res.status(200).json({
+                success: true,
+                status: 200,
+                data: users,
+                message: ""
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                success: false,
+                status: 400,
+                data: err,
+                message: err.message
+            });
+        })
+};
