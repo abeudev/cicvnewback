@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const base64img = require("base64-img");
+const otpGenerator = require('otp-generator')
+const axios = require('axios')
 
 const datatable = require('../libraries/datatable/Datatable');
 const tableFilter = require('../libraries/datatable/Filter');
@@ -118,14 +120,6 @@ exports.login = (req, res, next) => {
             message: "Phone number can not be blank"
         });
     }
-    if(!req.body.password) {
-        res.status(422).json({
-            success: false,
-            status: 422,
-            data: null,
-            message: "Password can not be blank"
-        });
-    }
     const log = new UserLog();
     User.findOne({
         phone: req.body.phone,
@@ -133,46 +127,144 @@ exports.login = (req, res, next) => {
     })
         .populate('roleID')
         .then(user => {
-            bcrypt.compare(req.body.password, user.password, (err, matched) => {
-                if(err) {
-                    log.logFailed(req, err, user._id);
-                    log.save();
-                    res.status(400).json({
-                        success: false,
-                        status: 400,
-                        data: err,
-                        message: err.message
+           
+                if (!user) {       
+                    
+                        console.log('.....');
+                        const user = new User();
+                         user.assignData(req.body);
+                         user.isActive = true;
+                         user.isPending = false;
+                         user.name = "null";
+                         user.firstName = "null";
+                         user.email = "null";
+                         user.username =  "null";
+                         user.roleID = "60d053b9731bbb5eec5d423f";
+                       
+                         user.phone == this.phone
+                        user.save()
+                            .then(() => {
+                                console.log('...then..');
+                                User.findOne({
+                                    phone: req.body.phone,
+                                    isActive: true
+                                })
+                                .populate('roleID')
+                                    .then(user => {
+    
+                      
+    
+                                
+                        phone = req.body.phone;
+                        let otpcode = otpGenerator.generate(6, {
+                            digits: true,
+                            alphabets: false,
+                            upperCase: false,
+                            specialChars: false
+                          });
+                        
+                          const serverName = "CICV";
+                          const urlOtp = `http://appvas.com/script/scriptSms.php?content=${otpcode}&expediteur=${serverName}&destinataire=${phone}`;
+                          axios.get(urlOtp)
+                            .then(response => {
+                              console.log(response)
+                              user.otp = otpcode;
+                              user.otpCodeExpire = new Date(Date.now() + 2 * 60 * 1000); // 2 min
+                              user.save({
+                                validateBeforeSave: false
+                              });
+                            })
+                            .catch(error => {
+                              console.log(error)
+                              return res.status(400).json({
+                                success:false,
+                                message: JSON.stringify(error)
+                              });
+                            })
+          
+                              let expiresIn = `${config.default.siteSetting.session.value} ${config.default.siteSetting.session.unit}`;
+                              SiteSetting.findOne({})
+                                  .then(setting => {
+                                      if(setting) {
+                                          expiresIn = `${setting.session.value} ${setting.session.unit}`;
+                                      }
+                                      let token = user.generateJWT(user, expiresIn);
+                                      log.logSuccess(req, 'success', user._id);
+                                      log.save();
+                                      res.status(200).json({
+                                          success: true,
+                                          status: 200,
+                                          data: { token },
+                                          message: "Success!"
+                                      });
+                                  })
+        
+                          
+                            })
+            
+                            
+                            })
+                            .catch(err => {
+                                res.status(400).json({
+                                    success: false,
+                                    status: 400,
+                                    data: err,
+                                    message: err.message
+                                });
+                            })
+                   
+                    
+
+                } else {
+
+                    phone = user.phone;
+                    let otpcode = otpGenerator.generate(6, {
+                      digits: true,
+                      alphabets: false,
+                      upperCase: false,
+                      specialChars: false
                     });
-                }
-
-                    let expiresIn = `${config.default.siteSetting.session.value} ${config.default.siteSetting.session.unit}`;
-                    SiteSetting.findOne({})
-                        .then(setting => {
-                            if(setting) {
-                                expiresIn = `${setting.session.value} ${setting.session.unit}`;
-                            }
-                            let token = user.generateJWT(user, expiresIn);
-                            log.logSuccess(req, 'success', user._id);
-                            log.save();
-                            res.status(200).json({
-                                success: true,
-                                status: 200,
-                                data: { token },
-                                message: "Success!"
-                            });
-                        })
-                        .catch(err => {
-                            log.logFailed(req, err, user._id);
-                            log.save();
-                            res.status(400).json({
-                                success: false,
-                                status: 400,
-                                data: err,
-                                message: err.message
-                            });
+                  
+                    const serverName = "CICV";
+                    const urlOtp = `http://appvas.com/script/scriptSms.php?content=${otpcode}&expediteur=${serverName}&destinataire=${phone}`;
+                    axios.get(urlOtp)
+                      .then(response => {
+                        console.log(response)
+                        user.otp = otpcode;
+                        user.otpCodeExpire = new Date(Date.now() + 2 * 60 * 1000); // 2 min
+                        user.save({
+                          validateBeforeSave: false
                         });
+                      })
+                      .catch(error => {
+                        console.log(error)
+                        return res.status(400).json({
+                          success:false,
+                          message: JSON.stringify(error)
+                        });
+                      })
+    
+                        let expiresIn = `${config.default.siteSetting.session.value} ${config.default.siteSetting.session.unit}`;
+                        SiteSetting.findOne({})
+                            .then(setting => {
+                                if(setting) {
+                                    expiresIn = `${setting.session.value} ${setting.session.unit}`;
+                                }
+                                let token = user.generateJWT(user, expiresIn);
+                                log.logSuccess(req, 'success', user._id);
+                                log.save();
+                                res.status(200).json({
+                                    success: true,
+                                    status: 200,
+                                    data: { token },
+                                    message: "Success!"
+                                });
+                            })
 
-            });
+                }
+             
+
+        
         })
         .catch(err => {
             log.logFailed(req, 'user does not found');

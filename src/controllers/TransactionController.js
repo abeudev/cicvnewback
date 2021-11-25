@@ -22,6 +22,7 @@ exports.table = (req,res, next) => {
     }
     const pipeline = table.generate_pipeline();
     
+    
     Transaction.aggregate(pipeline)
       .then(transaction => {
         res.status(200).json({
@@ -30,6 +31,7 @@ exports.table = (req,res, next) => {
             data: table.result(transaction),
             message: ""
         });
+        console.log(table.result(transaction));
       })
       .catch(err => {
         res.status(400).json({
@@ -148,6 +150,8 @@ exports.detail_by_id = (req, res, next) => {
 /**
  * Load Transaction as options for selection purphose
  */
+
+//@
  exports.options = (req, res) => {
     Transaction.find({
             isActive: true
@@ -156,8 +160,12 @@ exports.detail_by_id = (req, res, next) => {
         .then(transactions => {
             transactions = transactions.map(transaction => {
                return {
-                   text : transaction.arrival_date,
-                   value : transaction._id
+                 departure: transaction.departure_place.streetName,
+                arrive:transaction.arrival_place.streetName,
+                    text : transaction.departure_place.streetName+" "+transaction.arrival_place.streetName+" "+transaction.arrival_date,
+                   value : transaction._id,
+                //    text:transaction.arrival_date
+                  
                }
             });
             res.status(200).json({
